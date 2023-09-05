@@ -38,15 +38,17 @@ export const getEdit = async(req, res) => {
 export const postEdit = async(req, res) => {
     const { id } = req.params;
     const { title, description, hashtags} = req.body;
-    const video = await Video.findById(id);
+    const video = await Video.exist({_id: id});
     if(!video) {
         return res.render("404", {pageTitle: "Video not found."});
     }
-    video.title = title;
-    video.description = description;
-    video.hashtags = hashtags  //쉼표로 구분되어있는 해쉬태그 받아서 
+    await Video.findByIdAndUpdate(id, { 
+        title, description,
+        hashtags: hashtags
         .split(",")                // array로 변환
-        .map((word) => (word.startsWith("#") ? word :  `#${word}`));    //각각 해시태그들이 뭐로 시작하는지 확인 
+        .map((word) => (word.startsWith("#") ? word :  `#${word}`)),
+    });
+
     await video.save();
     return res.redirect(`/videos/${id}`);
     
@@ -63,15 +65,13 @@ export const postUpload = async (req, res) => {
             title,
             description,
             createdAt: Date.now(),
-            hashtags : hashtags
-                .split(",")
-                .map((word) => (word.startsWith("#") ? word :  `#${word}`)),
+            hashtags, 
            });
-    return res.redirect("/");
-} catch(error){
-    return res.render("upload", {
-        pageTitle: "Upload Video",
-        errorMessage: error._message,
-    });
-}
+        return res.redirect("/");
+    } catch(error){
+        return res.render("upload", {
+         pageTitle: "Upload Video",
+         errorMessage: error._message,
+     });
+    }
 };
