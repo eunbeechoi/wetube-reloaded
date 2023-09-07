@@ -13,7 +13,7 @@ Video.find({}, (error, videos) => {
 */
 
 export const home = async(req, res) => {
-    const videos = await Video.find({});
+    const videos = await Video.find({}).sort({ createdAt: "desc"});
     return res.render("home", { pageTitle: "Home", videos});
 };
 export const watch = async(req, res) => {
@@ -76,8 +76,22 @@ export const postUpload = async (req, res) => {
 
 export const deleteVideo = async(req, res) => {
     const { id } = req.params;
-    console.log(id)
-
+    await Video.findByIdAndDelete(id);
+        //de;ete video
     return res.redirect("/")
 
-}
+};
+
+export const search = async(req, res) => {
+    const {keyword} = req.query;
+    let videos = [];
+    if(keyword){
+        videos = await Video.find({    //const videos가 되면 if 바깥 코드들과  videos 공유 불가능
+            title: {
+                $regex: new RegExp(keyword, "i")   //i는 대소문자 구분X, keyword를 포함하는 영상 찾아줌
+            }          
+        });
+    }
+    return res.render("search", { pageTitle: "Search", videos});
+};
+
