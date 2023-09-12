@@ -56,10 +56,26 @@ export const postLogin = async(req, res) => {
         errorMessage: "wrong password"});
     }
     //세션에 정보 추가
-    req.session.loggedIn = true;
-    req.session.user= user;
+    // 이 설정은 세션을 수정할 때만 세션을 DB에 저장하고 쿠키를 넘겨줌 
+    req.session.loggedIn = true;  //사용자가 로그인하면 loggedIn을 true로 
+    req.session.user= user;      // DB에서 찾은 사용자 데이터를 user에 넣어줌 
     return res.redirect("/");
 };
+
+export const startGithubLogin = (req, res) => {
+    const baseUrl = "https://github.com/login/oauth/authorize";
+    const config = {
+        client_id : "10d990269080aa31cd1e",
+        allow_signup: false,
+        scope: "read:user user:eamil",
+    }
+    const params = new URLSearchParams(config).toString();
+    const finalUrl = `${baseUrl}?${params}`;
+    return res.redirect(finalUrl);
+ 
+};
+
+export const finishGithubLogin = (req, res) => {};
 
 export const edit =(req, res) => res.send("Edit User");
 export const remove =(req, res) => res.send("Remove User");
