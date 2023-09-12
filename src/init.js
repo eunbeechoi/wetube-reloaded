@@ -1,5 +1,4 @@
-import "dotenv/config"
-;
+import "dotenv/config";
 import "./db";  //function, const를 import 하는게 아님. 파일 자체를 import
 import "./models/Video";
 import "./models/User";
