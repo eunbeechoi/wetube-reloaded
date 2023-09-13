@@ -67,66 +67,6 @@ export const postLogin = async(req, res) => {
 
 
 
-/*
-export const startGithubLogin = (req, res) => {
-    const baseUrl = "https://github.com/login/oauth/authorize";
-    const config = {
-        client_id : process.env.GH_CLIENT,
-        allow_signup: false,
-        scope: "read:user user:email",
-    };
-    const params = new URLSearchParams(config).toString();
-    const finalUrl = `${baseUrl}?${params}`;
-    return res.redirect(finalUrl);
- 
-};
-
-
-
-
-export const finishGithubLogin = async(req, res) => {
-    const baseUrl = "https://github.com/login/oauth/access_token";
-    const config = {
-        client_id: process.env.GH_CLIENT,
-        client_secret: process.env.GH_SECRET,
-        code: req.query.code,
-    };
-    const params = new URLSearchParams(config).toString();
-    const finalUrl = `${baseUrl}?${params}`;
-    const tokenRequest = await (
-        await fetch(finalUrl, {
-        method: "POST",
-        headers: {
-            Accept: "application/json",
-        },
-    })
-    ).json();
-    if("access_token" in tokenRequest){
-        const {access_token} = tokenRequest;
-        const apiUrl = "https://api.github.com";
-        const userData = await (
-            await fetch(`${apiUrl}/user`, {
-            headers: {
-                Authorizaton: `token ${access_token}`,
-            },
-        })
-        ).json();
-        console.log(tokenRequest);
-        console.log(userData);
-        const emailData = await (
-            await fetch(`${apiUrl}/user/emails`, {
-                headers: {
-                    Authorizaton: `token ${access_token}`,
-                },
-            })
-            ).json();
-            console.log(emailData);
-    }else {
-        return res.redirect("/login");
-    }
-};
-*/
-
 export const startGithubLogin = (req, res) => {
     const baseUrl = "https://github.com/login/oauth/authorize";
     const config = {
@@ -195,9 +135,72 @@ export const finishGithubLogin = async(req, res) => {
 
 };
 
-export const edit =(req, res) => res.send("Edit User");
+
 export const logout = (req, res) => {
     req.session.destroy();
     return res.redirect("/");
 };
+
+
+export const getEdit = (req, res) => {
+    res.render("edit-profile", {pageTitle: "Edit Profile"});
+};
+
+export const postEdit = async(req, res) => {
+    //const {user: {id}} = req.session;
+    // ==
+    //const id = req.session.user.id
+    //==
+    const {
+        session: {
+            user: {_id},
+        },
+        body: {name, email, username, location},
+    } = req;
+    const updateUser = await User.findByIdAndUpdate(_id, {
+        name, email, username, location,
+    },
+    {new: true}
+    );
+    req.session.user = updateUser;
+    return res.redirect("/users/edit");
+};
+
+
+export const getChangePassword = (req, res) => {
+    if(req.session.user.socialOnly === true){
+        return res.redirect("/");
+    }
+    return res.render("users/change-password", {pageTitle: "Change Password"});
+};
+
+
+export const postChangePassword = async(req, res) => {
+    const {
+        session: {
+            user: {_id},
+        },
+        body: {oldPassword, newPassword, newPasswordConfirmation},
+    } = req;
+    const user = await User.findById(_id);
+    const ok = await bcrypt.compare(oldPassword, user.password)
+    if(!ok){
+        return res.status(400).render("users/change-password", {
+            pageTitle: "Change Password", 
+            errorMessage: "the current password is incorrect",});
+    }
+    if(newPassword !== newPasswordConfirmation){
+        return res.status(400).render("users/change-password", {
+            pageTitle: "Change Password", 
+            errorMessage: "the password does not match the confirmation"});
+    }
+    
+    user.password = newPassword;
+    await user.save();     //pre save 작동 (User.js 파일), 새 비번을 hash하기 위해서 작동시킴 
+
+
+    // send notification 
+    return res.redirect("/users/logout");
+};
+
 export const see = (req, res) => res.send("See User");
