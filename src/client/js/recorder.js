@@ -4,13 +4,13 @@ const video = document.getElementById("preview")
 const handleDownload = () => {
     const a = document.createElement("a");
     a.href = videoFile; // 이 링크는 videoFile로 갈 수 있는 url과 연결 
-    a.download = "MyRecording"; // a태그에 download 속성 추가
+    a.download = "MyRecording.webm"; // a태그에 download 속성 추가
     a.click();
 
 };
 
 const handleStop = () => {
-    startBtn.innerText = "Download Recording.webm";
+    startBtn.innerText = "Download Recording";
     startBtn.removeEventListener("click", handleStop);
     startBtn.addEventListener("click", handleDownload);
 
