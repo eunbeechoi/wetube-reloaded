@@ -1,7 +1,18 @@
+import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
+
+
 const startBtn = document.getElementById("startBtn");
 const video = document.getElementById("preview")
 
-const handleDownload = () => {
+const handleDownload = async() => {
+    const ffmpeg = createFFmpeg({ log: true });
+    await ffmpeg.load(); //ffmpeg.load()를 await하는 이유: 사용자가 소프트웨어를 사용할 것이기 떄문
+
+    // ffmpeg에 파일 만들기 
+    ffmpeg.FS("writeFile", "recording.webm", await fetchFile(videoFile))
+
+    await ffmpeg.run("-i", "recording.webm", "-r", "60", "output.mp4")  //mp4로 변환  //"-r", "60" 초당 60프레임으로 인코딩 -> 더 빠른 영상 인코딩 가능 
+
     const a = document.createElement("a");
     a.href = videoFile; // 이 링크는 videoFile로 갈 수 있는 url과 연결 
     a.download = "MyRecording.webm"; // a태그에 download 속성 추가
@@ -32,6 +43,7 @@ const handleStart = () => {
         //createObjectURL - 브라우저 메모리에서만 가능한 URL 만듦
         //파일을 가리키는 URL 
         videoFile = URL.createObjectURL(event.data)
+        console.log(videoFile);
         video.srcObject = null;
         video.src = videoFile;
         video.loop = true;
