@@ -13,10 +13,41 @@ const handleDownload = async() => {
 
     await ffmpeg.run("-i", "recording.webm", "-r", "60", "output.mp4")  //mp4로 변환  //"-r", "60" 초당 60프레임으로 인코딩 -> 더 빠른 영상 인코딩 가능 
 
+    await ffmpeg.run("-i", "recording.webm", "-ss", "00:00:01", "-frames:v", "1", "thumbnail.jpg") //"-frames:v", "1" -> 첫 프레임(또는 이동한 시간)의 스크린샷을 찍어줌 1은 한장 
+
+    const mp4File = ffmpeg.FS("readFile", "output.mp4");
+    const thumbFile = ffmpeg.FS("readFile", "thumbnail.jpg");
+
+    const mp4Blob = new Blob([mp4File.buffer], {type: "video/mp4"});
+    const thumbBlob = new Blob([thumbFile.buffer], {type: "image/jpg"});
+
+    //blob url은 url을 통해서 파일에 접근하는 방법 
+    const mp4Url = URL.createObjectURL(mp4Blob);
+    const thumbUrl = URL.createObjectURL(thumbBlob);
+
+
     const a = document.createElement("a");
-    a.href = videoFile; // 이 링크는 videoFile로 갈 수 있는 url과 연결 
-    a.download = "MyRecording.webm"; // a태그에 download 속성 추가
+    a.href = mp4Url;
+    a.download = "MyRecording.mp4"; // a태그에 download 속성 추가
+    document.body.appendChild(a)
     a.click();
+
+    const thumbA = document.createElement("a");
+    thumbA.href = thumbUrl;
+    thumbA.download = "MyThumbnail.jpg";
+    document.body.appendChild(thumbA)
+    thumbA.click();
+
+    ffmpeg.FS("unlink", "recording.webm");
+    ffmpeg.FS("unlink", "output.mp4");
+    ffmpeg.FS("unlink", "thumbnail.jpg");
+
+    URL.revokeObjectURL(mp4Url);
+    URL.revokeObjectURL(thumbUrl);
+    URL.revokeObjectURL(videoFile);
+ 
+    
+
 
 };
 
