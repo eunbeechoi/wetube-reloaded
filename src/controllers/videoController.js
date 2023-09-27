@@ -70,23 +70,21 @@ export const getUpload = (req, res) => {
 
 export const postUpload = async (req, res) => {
     const { user: {_id},} = req.session;
-    const {path} = req.file;
-    //const {path:fileUrl} = req.file;
+    const {video, thumb} = req.files;
     const { title, description, hashtags } = req.body;
-    //console.log("eevee", path);
     try {
         const newVideo = await Video.create({
             title,
             description,
-            fileUrl: path,
-            //fileUrl,
+            fileUrl: video[0].path,
+            thumbUrl: thumb[0].path.substring(15),
             owner: _id,
             createdAt: Date.now(),
             hashtags: Video.formatHashtags(hashtags),
            });
         const user = await User.findById(_id);
         user.videos.push(newVideo._id);
-        user.save(); 
+        user.save();
         return res.redirect("/");
     } catch(error){
         return res.status(400).render("upload", {

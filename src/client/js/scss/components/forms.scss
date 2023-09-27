@@ -9,9 +9,8 @@ form {
     }
 }
 
-input { 
-        
-    all:unset;
+input:not(input[type="range"]), input[type="submit"] {
+    all: unset;
     padding: 15px 20px;
     border-radius: 5px;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -20,8 +19,8 @@ input {
     font-size: 16px;
     color: white;
     width: 90%;
-    &::placeholder{
-        color: rgba(255, 255, 255, 0.5);
+    &::placeholder {
+        color: rgba(255, 255, 255, 0.7);
     }
 }
 
@@ -29,9 +28,18 @@ input[type="submit"],
 .social__btn {
     border-radius: 5px;
     padding: 12px 20px;
-    background-color: rgba($color: $red, $alpha: 0.9);
-    text-align: center;
-    color: white;
+    background-color: white !important;
+    color: rgba($color: $red, $alpha: 1) !important;
+    text-align: center !important;
     cursor: pointer;
     display: block;
+    border: none;
+    &:focus {
+      outline: none;
+    }
+    &:disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    
 }
