@@ -2,6 +2,7 @@
 import express from "express";
 import morgan from "morgan";
 import session from "express-session";
+import flash from "express-flash";
 import MongoStore from "connect-mongo";
 import rootRouter from "./routers/rootRouter";
 import videoRouter from "./routers/videoRouter";
@@ -19,8 +20,8 @@ const logger = morgan("dev");
 app.set("view engine", "pug");
 app.set("views", process.cwd() + "/src/views");
 app.use(logger);
-app.use(express.urlencoded({extended: true}))
-
+app.use(express.urlencoded({extended: true}));
+app.use(express.json());
 
 //이 미들웨어를 router 앞에 초기화 해주면 됨. 
 // 세션 미들웨어가 사이트로 들어오는 모두를 기억함. 
@@ -33,7 +34,7 @@ app.use(session({
 );
 
 
-
+app.use(flash());   // flash 미들웨어는 messages라는 locals를 사용할 수 있게 해줌 
 app.use(localsMiddleware);
 app.use("/uploads", express.static("uploads"));
 app.use("/static", express.static("assets"));

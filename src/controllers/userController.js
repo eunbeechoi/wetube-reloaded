@@ -139,6 +139,7 @@ export const finishGithubLogin = async(req, res) => {
 
 export const logout = (req, res) => {
     req.session.destroy();
+    req.flash("info", "Bye Bye")
     return res.redirect("/");
 };
 
@@ -177,6 +178,7 @@ export const postEdit = async(req, res) => {
 
 export const getChangePassword = (req, res) => {
     if(req.session.user.socialOnly === true){
+        req.flash("error", "Can't change password")
         return res.redirect("/");
     }
     return res.render("users/change-password", {pageTitle: "Change Password"});
@@ -204,10 +206,8 @@ export const postChangePassword = async(req, res) => {
     }
     
     user.password = newPassword;
-    await user.save();     //pre save 작동 (User.js 파일), 새 비번을 hash하기 위해서 작동시킴 
-
-
-    // send notification 
+    await user.save();     //pre save 작동 (User.js 파일), 새 비번을 hash하기 위해서 작동시킴
+    req.flash("info", "Password Updated")
     return res.redirect("/users/logout");
 };
 
