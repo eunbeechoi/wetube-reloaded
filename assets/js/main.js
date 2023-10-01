@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * ATTENTION: The "eval" devtool has been used (maybe by default in mode: "development").
  * This devtool is neither made for production nor for readable output files.
@@ -12,3 +13,6 @@
 /******/ 	
 /******/ })()
 ;
+=======
+(()=>{"use strict";console.log("main")})();
+>>>>>>> 8592240fe35f960ebdaa6a79626326ffebf82b42
